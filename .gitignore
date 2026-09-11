@@ -1,0 +1,9 @@
+# Charmcraft build outputs
+*.charm
+*.tar.gz
+# Python tooling
+.venv/
+.tox/
+.coverage
+__pycache__/
+*.py[cod]
