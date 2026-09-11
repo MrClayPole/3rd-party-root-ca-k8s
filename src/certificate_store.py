@@ -55,7 +55,9 @@ class CertificateStore:
         try:
             ssl.PEM_cert_to_DER_cert(certificate)
         except ValueError as error:
-            raise CertificateError("root-ca must contain exactly one PEM X.509 certificate") from error
+            raise CertificateError(
+                "root-ca must contain exactly one PEM X.509 certificate"
+            ) from error
 
     def _atomic_write(self, contents: str) -> None:
         """Write the certificate atomically with world-readable certificate permissions."""
@@ -79,4 +81,5 @@ class CertificateStore:
         try:
             subprocess.run(self.update_command, check=True, capture_output=True, text=True)
         except (OSError, subprocess.CalledProcessError) as error:
-            raise CertificateStoreError(f"failed to run {' '.join(self.update_command)}: {error}") from error
+            message = f"failed to run {' '.join(self.update_command)}: {error}"
+            raise CertificateStoreError(message) from error
