@@ -16,6 +16,12 @@ platforms:
   ubuntu@24.04:arm64:
 assumes:
   - juju >= 3.6
+parts:
+  charm:
+    plugin: uv
+    source: .
+    build-snaps:
+      - astral-uv
 provides:
   send-ca-cert:
     interface: certificate_transfer
