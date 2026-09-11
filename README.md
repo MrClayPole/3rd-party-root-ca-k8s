@@ -1,4 +1,4 @@
-# Third-party root CA
+# Third-party root CA for Kubernetes
 
 A Kubernetes Juju charm that provides one third-party root CA through the
 standard `certificate_transfer` relation interface. It does not modify cluster
@@ -14,7 +14,7 @@ rejected.
 Use a YAML configuration file to preserve the PEM line breaks:
 
 ```yaml
-third-party-root-ca:
+third-party-root-ca-k8s:
   root-ca: |
     -----BEGIN CERTIFICATE-----
     ...
@@ -22,7 +22,7 @@ third-party-root-ca:
 ```
 
 ```bash
-juju config third-party-root-ca --file ca-config.yaml
+juju config third-party-root-ca-k8s --file ca-config.yaml
 ```
 
 ## Integrate
@@ -31,8 +31,8 @@ The charm provides `send-ca-cert` with the canonical `certificate_transfer`
 interface. Integrate it with any charm that requires `receive-ca-cert`:
 
 ```bash
-juju deploy ./third-party-root-ca_*.charm third-party-root-ca
-juju integrate third-party-root-ca:send-ca-cert <consumer>:receive-ca-cert
+juju deploy ./third-party-root-ca-k8s_*.charm third-party-root-ca-k8s
+juju integrate third-party-root-ca-k8s:send-ca-cert <consumer>:receive-ca-cert
 ```
 
 When the CA configuration changes, the charm republishes it to every related

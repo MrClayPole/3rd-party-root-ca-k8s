@@ -1,6 +1,6 @@
 type: charm
-name: third-party-root-ca
-title: Third-party root CA
+name: third-party-root-ca-k8s
+title: Third-party root CA for Kubernetes
 summary: Provide a configured root CA over certificate_transfer.
 description: |
   A Kubernetes Juju charm that provides one configured PEM root CA through the

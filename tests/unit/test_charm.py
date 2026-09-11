@@ -14,7 +14,7 @@ BAUwAwEB/zAKBggqhkjOPQQDAgNHADBEAiA+TEOh27x3RMVF3jAUNr2v6AQuARmu
 xOBr8zYo1lABDwIgY21V1VqFPYGsLKxNAA8JtOHUj0XWF4QUqCRzaJcLPE4=
 -----END CERTIFICATE-----"""
 META = {
-    "name": "third-party-root-ca",
+    "name": "third-party-root-ca-k8s",
     "provides": {"send-ca-cert": {"interface": "certificate_transfer"}},
 }
 CONFIG = {"options": {"root-ca": {"type": "string", "default": ""}}}

@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 [project]
-name = "third-party-root-ca"
+name = "third-party-root-ca-k8s"
 version = "0.0.1"
 requires-python = ">=3.10"
 
