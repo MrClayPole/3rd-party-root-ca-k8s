@@ -1,40 +1,30 @@
 type: charm
 name: third-party-root-ca
 title: Third-party root CA
-summary: Add a configured root CA to Ubuntu system trust stores.
+summary: Provide a configured root CA over certificate_transfer.
 description: |
-  A subordinate charm that installs one PEM-encoded third-party root CA in the
-  Ubuntu system trust store of its associated machine or LXD system container.
+  A Kubernetes Juju charm that provides one configured PEM root CA through the
+  standard certificate_transfer interface.
 
-  The charm writes /usr/local/share/ca-certificates/third-party-root-ca.crt and
-  runs update-ca-certificates whenever the root-ca configuration changes.
-
-  Kubernetes workload containers are isolated from subordinate charm containers.
-  A principal Kubernetes charm must explicitly expose a shared writable volume
-  for any cross-container trust-store update; this charm does not bypass that
-  isolation boundary.
-base: ubuntu@24.04
+  Integrate its send-ca-cert endpoint with a consumer's receive-ca-cert
+  endpoint. Consumers are responsible for placing the received CA in their own
+  workload trust store.
 platforms:
-  amd64:
-  arm64:
+  ubuntu@22.04:amd64:
+  ubuntu@22.04:arm64:
+  ubuntu@24.04:amd64:
+  ubuntu@24.04:arm64:
 assumes:
   - juju >= 3.6
-subordinate: true
-requires:
-  juju-info:
-    interface: juju-info
-    scope: container
-parts:
-  charm:
-    plugin: uv
-    source: .
-    build-snaps:
-      - astral-uv
+provides:
+  send-ca-cert:
+    interface: certificate_transfer
+    description: Provides the configured third-party root CA to consumers.
 config:
   options:
     root-ca:
       type: string
       default: ""
       description: |
-        PEM-encoded third-party root CA certificate. Set this to install or
-        replace the managed certificate; set it to an empty string to remove it.
+        Exactly one PEM-encoded third-party root CA certificate. It is
+        published to all send-ca-cert relations after validation.

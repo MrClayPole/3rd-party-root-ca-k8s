@@ -1,28 +1,17 @@
-# Third-party root CA charm
+# Third-party root CA
 
-A Juju subordinate charm that installs a configured PEM root CA into Ubuntu's
-standard trust store. It is intended for Juju machine units and LXD system
-containers running Ubuntu 20.04, 22.04, 24.04, or 26.04.
+A Kubernetes Juju charm that provides one third-party root CA through the
+standard `certificate_transfer` relation interface. It does not modify cluster
+nodes or workload containers. Each related consumer receives the CA and updates
+its own trust store.
 
-## What it changes
+## Configuration
 
-The charm manages exactly one file:
+`root-ca` must contain **exactly one literal PEM certificate**. Certificate
+bundles, text before or after the PEM block, and malformed certificates are
+rejected.
 
-`/usr/local/share/ca-certificates/third-party-root-ca.crt`
-
-After a successful configuration change it invokes `update-ca-certificates`.
-Clearing `root-ca` removes only that managed file and refreshes the store.
-
-## Deploy and integrate
-
-```bash
-juju deploy ./third-party-root-ca_*.charm third-party-root-ca
-juju integrate third-party-root-ca:juju-info <principal>:juju-info
-juju config third-party-root-ca root-ca="$(base64 -w0 root-ca.pem)"
-```
-
-The `root-ca` configuration expects the literal PEM value. For multiline-safe
-configuration use a YAML config file:
+Use a YAML configuration file to preserve the PEM line breaks:
 
 ```yaml
 third-party-root-ca:
@@ -32,25 +21,26 @@ third-party-root-ca:
     -----END CERTIFICATE-----
 ```
 
-Then apply it with `juju config third-party-root-ca --file ca-config.yaml`.
+```bash
+juju config third-party-root-ca --file ca-config.yaml
+```
 
-## Kubernetes scope
+## Integrate
 
-This is a subordinate configurator and does not modify Kubernetes nodes.
-However, Kubernetes containers within one pod have separate filesystems. Juju
-cannot grant this charm write access to an arbitrary principal workload
-container merely through a subordinate `juju-info` relation. For Kubernetes,
-the principal charm must deliberately provide an integration or shared writable
-volume; without that workload-specific cooperation, updating its CA store is
-not technically possible or safe. The charm will not attempt to bypass the
-container isolation boundary.
+The charm provides `send-ca-cert` with the canonical `certificate_transfer`
+interface. Integrate it with any charm that requires `receive-ca-cert`:
+
+```bash
+juju deploy ./third-party-root-ca_*.charm third-party-root-ca
+juju integrate third-party-root-ca:send-ca-cert <consumer>:receive-ca-cert
+```
+
+When the CA configuration changes, the charm republishes it to every related
+consumer. A consumer controls where and how it trusts the received CA.
 
 ## Development
 
 ```bash
-tox -e unit
+PYTHONPATH=src uv run --group unit pytest -v tests/unit
 charmcraft pack
 ```
-
-The source unit tests cover PEM validation, atomic file writes, idempotency,
-removal, command failures, and Juju unit statuses.
